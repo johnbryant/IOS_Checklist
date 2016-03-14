@@ -11,20 +11,20 @@ import UIKit
 class ChecklistViewController: UITableViewController, ItemDetailViewControllerDelegate{
 
     var items: [ChecklistItem]
-    
+    var checklist: Checklist!
     
     required init?(coder aDecoder: NSCoder) {
         items = [ChecklistItem]()
         
         super.init(coder: aDecoder)
         loadChecklistItems()
-        print("Document folder is \(documentsDirectory())")
-        print("data file path is \(dataFilePath())")
+//        print("Document folder is \(documentsDirectory())")
+//        print("data file path is \(dataFilePath())")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        title = "WTF"
+        title = checklist.name
     }
 
     
@@ -79,6 +79,7 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
             let controller = navigationController.topViewController as! ItemDetailViewController
             controller.delegate = self
             if let indexPath = tableView.indexPathForCell(sender as! UITableViewCell) {
+                // it passes a reference
                 controller.itemToEdit = items[indexPath.row]
             }
         }
@@ -156,6 +157,7 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
         data.writeToFile(dataFilePath(), atomically: true)
     }
     
+    // load data from .plist file
     func loadChecklistItems() {
         let path = dataFilePath()
         if NSFileManager.defaultManager().fileExistsAtPath(path) {
