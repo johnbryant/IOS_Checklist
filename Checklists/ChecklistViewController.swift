@@ -12,6 +12,7 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
 
     var items: [ChecklistItem]
     
+    
     required init?(coder aDecoder: NSCoder) {
         items = [ChecklistItem]()
         
@@ -41,11 +42,13 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
         items.append(row4item)
         
         super.init(coder: aDecoder)
+        
+        print("Document folder is \(documentsDirectory())")
+        print("data file path is \(dataFilePath())")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
 //        title = "WTF"
     }
 
@@ -55,11 +58,13 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
         // Dispose of any resources that can be recreated.
     }
 
-
+    // functions to conform the protocal in AddItemChecklistController
+    // 1
     func itemDetailViewControllerDidCancel(controller: ItemDetailViewController) {
         dismissViewControllerAnimated(true, completion: nil)
     }
     
+    // 2
     func itemDetailViewController(controller: ItemDetailViewController, didFinishAddingItem item: ChecklistItem) {
         let newRowIndex = items.count
         items.append(item)
@@ -69,10 +74,11 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
         dismissViewControllerAnimated(true, completion: nil)
     }
     
+    // 3
     func itemDetailViewController(controller: ItemDetailViewController, didFinishEditingItem item: ChecklistItem) {
-        for item in items {
-            print(item.text)
-        }
+//        for item in items {
+//            print(item.text)
+//        }
         
         if let index = items.indexOf(item) {
             let indexPath = NSIndexPath(forRow: index, inSection: 0)
@@ -117,14 +123,14 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
         return cell
     }
     
-
+    // delete item
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         items.removeAtIndex(indexPath.row)
         let indexPaths = [indexPath]
         tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
     }
     
-    
+    // actions when touch an item
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if let cell = tableView.cellForRowAtIndexPath(indexPath) {
             let item = items[indexPath.row]
@@ -135,6 +141,7 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
     
+    // configure checkmark for cell
     func configureCheckmarkForCell(cell: UITableViewCell, withChecklistItem item: ChecklistItem) {
         let label = cell.viewWithTag(1001) as! UILabel
         if item.checked {
@@ -145,9 +152,29 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
 
     }
     
+    // configure text for cell
     func configureTextForCell(cell: UITableViewCell, withChecklistItem item: ChecklistItem) {
         let label = cell.viewWithTag(1000) as! UILabel
         label.text = item.text
+    }
+    
+    //
+    func documentsDirectory() -> String {
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        return paths[0]
+    }
+    
+    func dataFilePath() -> String {
+        return (documentsDirectory() as NSString).stringByAppendingPathComponent("Checklists.plist")
+        // or return "\(documentsDirectory())/Checklists.plist"
+    }
+    
+    func saveChecklistItems() {
+        let data = NSMutableData()
+        let archiver = NSKeyedArchiver(forWritingWithMutableData: data)
+        archiver.encodeObject(items, forKey: "ChecklistItems")
+        archiver.finishEncoding()
+        data.writeToFile(dataFilePath(), atomically: true)
     }
     
 }
