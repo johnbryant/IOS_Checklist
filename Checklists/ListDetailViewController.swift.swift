@@ -48,6 +48,7 @@ class ListDetailViewController: UITableViewController, UITextFieldDelegate {
     
     @IBAction func done() {
         if let checklist = checklistToEdit {
+            checklist.name = textField.text!
             delegate?.listDetailViewController(self, didFinishEditingChecklist: checklist)
         } else {
             let checklist = Checklist(name: textField.text!)
@@ -62,7 +63,8 @@ class ListDetailViewController: UITableViewController, UITextFieldDelegate {
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         let oldString: NSString = textField.text!
         let newString: NSString = oldString.stringByReplacingCharactersInRange(range, withString: string)
-        doneBarButton.enabled = (newString.length > 0)
+        doneBarButton.enabled = newString.length > 0
+//        print(newString)
         return true
     }
     
