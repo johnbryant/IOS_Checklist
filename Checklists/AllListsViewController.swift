@@ -15,28 +15,14 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
     required init?(coder aDecoder: NSCoder) {
         lists = Array<Checklist>()
         super.init(coder: aDecoder)
-        var list = Checklist(name: "Birthdays")
-        lists.append(list)
-        
-        list = Checklist(name: "groceries")
-        lists.append(list)
-        
-        list = Checklist(name: "Cool apps")
-        lists.append(list)
-        
-        list = Checklist(name: "To Do")
-        lists.append(list)
+        loadChecklist()
         
     }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
 
     override func didReceiveMemoryWarning() {
@@ -44,12 +30,13 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         // Dispose of any resources that can be recreated.
     }
 
-    // delegate func 1
+    
+    // delegate - Cancel
     func listDetailViewControllerDidCancel(controller: ListDetailViewController) {
         dismissViewControllerAnimated(true, completion: nil)
     }
     
-    // delegate func 2
+    // delegate - Add
     func listDetailViewController(controller: ListDetailViewController, didFinishAddingChecklist checklist: Checklist) {
         let index = lists.count
         lists.append(checklist)
@@ -60,7 +47,7 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         dismissViewControllerAnimated(true, completion: nil)
     }
 
-    // delegate func 3
+    // delegate - Edit
     func listDetailViewController(controller: ListDetailViewController, didFinishEditingChecklist checklist: Checklist) {
         print(checklist.name)
         if let index = lists.indexOf(checklist) {
@@ -73,13 +60,13 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
     }
 
     
-
+    //  number of rows
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return lists.count
     }
 
-    
+    // content of each cell
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = cellForTableView(tableView)
         let checklist = lists[indexPath.row]
@@ -88,18 +75,20 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         return cell
     }
 
-    
+    // actions when touch a row
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let checklist = lists[indexPath.row]
         performSegueWithIdentifier("ShowChecklist", sender: checklist)
     }
     
+    // delete a row
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         lists.removeAtIndex(indexPath.row)
         let indexPaths = [indexPath]
         tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
     }
     
+    // pass the edit data
     override func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
         let navigationController = storyboard!.instantiateViewControllerWithIdentifier("ListDetailNavigationController") as! UINavigationController
         let controller = navigationController.topViewController as! ListDetailViewController
@@ -110,6 +99,7 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         
     }
     
+    // prepare for showing checklist or adding checklist
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "ShowChecklist" {
             let controller = segue.destinationViewController as! ChecklistViewController
@@ -123,6 +113,7 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         }
     }
     
+    // content of each row
     func cellForTableView(tableView: UITableView) -> UITableViewCell {
         let cellIdentifier = "Cell"
         if let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier) {
@@ -131,5 +122,39 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
             return UITableViewCell(style: .Default, reuseIdentifier: cellIdentifier)
         }
     }
+    
+    // get the document directory
+        func documentsDirectory() -> String {
+            let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+            return paths[0]
+        }
+    
+    // get the file path
+        func dataFilePath() -> String {
+            return (documentsDirectory() as NSString).stringByAppendingPathComponent("Checklists.plist")
+            // or return "\(documentsDirectory())/Checklists.plist"
+        }
+    
+    // save check list items
+        func saveChecklist() {
+            let data = NSMutableData()
+            let archiver = NSKeyedArchiver(forWritingWithMutableData: data)
+            archiver.encodeObject(lists, forKey: "Checklist")
+            archiver.finishEncoding()
+            data.writeToFile(dataFilePath(), atomically: true)
+        }
+    
+    // load data from .plist file
+        func loadChecklist() {
+            let path = dataFilePath()
+            if NSFileManager.defaultManager().fileExistsAtPath(path) {
+                if let data = NSData(contentsOfFile: path) {
+                    let unarchiver = NSKeyedUnarchiver(forReadingWithData: data)
+                    lists = unarchiver.decodeObjectForKey("Checklist") as! [Checklist]
+                    unarchiver.finishDecoding()
+                }
+            }
+        }
+    
     
 }
