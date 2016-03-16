@@ -53,10 +53,15 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
     
     //  number of rows
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        print(dataModel.lists)
+        // #warning Incomplete impleentation, return the number of rows
+        if let model = dataModel {
+//            return dataModel.lists.count
+            return model.lists.count
+        } else {
+            print("nil")
+            return 1
+        }
         
-        return dataModel.lists.count
     }
 
     // content of each cell
