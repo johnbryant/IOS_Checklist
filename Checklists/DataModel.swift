@@ -10,9 +10,21 @@ import Foundation
 
 class DataModel {
     var lists = [Checklist]()
+    var indexOfSelectedChecklist: Int {
+        get {
+            return NSUserDefaults.standardUserDefaults().integerForKey("ChecklistIndex")
+        }
+        
+        set {
+            NSUserDefaults.standardUserDefaults().setInteger(newValue, forKey: "ChecklistIndex")
+            NSUserDefaults.standardUserDefaults().synchronize()
+            print("NSUserDefaults sync!")
+        }
+    }
     
     init() {
         loadChecklist()
+        registerDefaults()
     }
     
     // get the document directory
@@ -46,6 +58,11 @@ class DataModel {
                 unarchiver.finishDecoding()
             }
         }
+    }
+    
+    func registerDefaults() {
+        let dictionary = ["ChecklistIndex" : -1]
+        NSUserDefaults.standardUserDefaults().registerDefaults(dictionary)
     }
 
 }

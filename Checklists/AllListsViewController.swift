@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AllListsViewController: UITableViewController, ListDetailViewControllerDelegate {
+class AllListsViewController: UITableViewController, ListDetailViewControllerDelegate, UINavigationControllerDelegate {
     
     var dataModel: DataModel!
     
@@ -17,6 +17,19 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
 
     }
 
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        navigationController?.delegate = self
+        let index = dataModel.indexOfSelectedChecklist
+        
+        if (index < dataModel.lists.count) && (index >= 0) {
+            let checklist = dataModel.lists[index]
+            performSegueWithIdentifier("ShowChecklist", sender: checklist)
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -76,6 +89,9 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
     // actions when touch a row
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let checklist = dataModel.lists[indexPath.row]
+        
+        // set NSUserDefault as the number of row
+        dataModel.indexOfSelectedChecklist = indexPath.row
         performSegueWithIdentifier("ShowChecklist", sender: checklist)
     }
     
@@ -121,6 +137,13 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         }
     }
     
-       
+    // set NSUserDefaults to -1 if back to main view
+    func navigationController(navigationController: UINavigationController, willShowViewController viewController: UIViewController, animated: Bool) {
+        if viewController === self {
+            dataModel.indexOfSelectedChecklist = -1
+        }
+    }
+
+    
     
 }
