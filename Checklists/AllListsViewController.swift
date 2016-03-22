@@ -16,7 +16,13 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         super.viewDidLoad()
 
     }
-
+    
+    // reload content of view before it appears
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+    
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
@@ -83,9 +89,18 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         let checklist = dataModel.lists[indexPath.row]
         cell.textLabel!.text = checklist.name
         cell.accessoryType = .DetailDisclosureButton
+        let count = checklist.countUncheckedItems()
+        if checklist.items.count == 0 {
+            cell.detailTextLabel!.text = "(No Items)"
+        } else if count == 0 {
+            cell.detailTextLabel!.text = "All Done!"
+        } else {
+            cell.detailTextLabel!.text = "\(count) Remaining"
+        }
         return cell
     }
 
+    
     // actions when touch a row
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let checklist = dataModel.lists[indexPath.row]
@@ -127,13 +142,13 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         }
     }
     
-    // content of each row
+    // uniform setting of each row
     func cellForTableView(tableView: UITableView) -> UITableViewCell {
         let cellIdentifier = "Cell"
         if let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier) {
             return cell
         } else {
-            return UITableViewCell(style: .Default, reuseIdentifier: cellIdentifier)
+            return UITableViewCell(style: .Subtitle, reuseIdentifier: cellIdentifier)
         }
     }
     
