@@ -49,23 +49,23 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
     
     // delegate - Add
     func listDetailViewController(controller: ListDetailViewController, didFinishAddingChecklist checklist: Checklist) {
-        let index = dataModel.lists.count
         dataModel.lists.append(checklist)
-        let indexPath = NSIndexPath(forItem: index, inSection: 0)
-        let indexPaths = [indexPath]
-        tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+        dataModel.sortChecklists()
+        tableView.reloadData()
         dismissViewControllerAnimated(true, completion: nil)
     }
 
     // delegate - Edit
     func listDetailViewController(controller: ListDetailViewController, didFinishEditingChecklist checklist: Checklist) {
-        print(checklist.name)
-        if let index = dataModel.lists.indexOf(checklist) {
-            let indexPath = NSIndexPath(forItem: index, inSection: 0)
-            if let cell = tableView.cellForRowAtIndexPath(indexPath) {
-                cell.textLabel?.text = checklist.name
-            }
-        }
+//        print(checklist.name)
+//        if let index = dataModel.lists.indexOf(checklist) {
+//            let indexPath = NSIndexPath(forItem: index, inSection: 0)
+//            if let cell = tableView.cellForRowAtIndexPath(indexPath) {
+//                cell.textLabel?.text = checklist.name
+//            }
+//        }
+        dataModel.sortChecklists()
+        tableView.reloadData()
         dismissViewControllerAnimated(true, completion: nil)
     }
 
@@ -90,6 +90,7 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         cell.textLabel!.text = checklist.name
         cell.accessoryType = .DetailDisclosureButton
         let count = checklist.countUncheckedItems()
+        
         if checklist.items.count == 0 {
             cell.detailTextLabel!.text = "(No Items)"
         } else if count == 0 {
@@ -97,6 +98,8 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
         } else {
             cell.detailTextLabel!.text = "\(count) Remaining"
         }
+        
+        cell.imageView!.image = UIImage(named: checklist.iconName)
         return cell
     }
 
@@ -158,7 +161,6 @@ class AllListsViewController: UITableViewController, ListDetailViewControllerDel
             dataModel.indexOfSelectedChecklist = -1
         }
     }
-
     
     
 }
